@@ -9,8 +9,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>	
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <string>
 #include "error_functions.h"
 
 #define MAX_READ 1024
@@ -20,7 +23,7 @@ using namespace std;
 /*
  * 
  */
-int main(int argc, char** argv) {
+int main_(int argc, char** argv) {
 
 
 	/**
@@ -103,47 +106,85 @@ int main(int argc, char** argv) {
 	//	printf(" Read only: %d; Write only: %d; Read and Write: %d; Access mode: %d\n", O_RDONLY, O_WRONLY, O_RDWR, O_ACCMODE);
 	//	printf(" Append: %d; Async: %d; Sync: %d\n", O_APPEND, O_ASYNC, O_SYNC);
 
-//	int fd = open(argv[1], O_SYNC | O_WRONLY);
-//	if (fd == -1) {
-//		errExit("open %s", argv[1]);
-//	}
-//	int flags = fcntl(fd, F_GETFL);
-//	if (flags & O_SYNC) {
-//		printf("File %s is for synchronized\n", argv[1]);
-//	}
-//	if (flags & O_RDONLY) {
-//		printf("File %s is for read only\n", argv[1]);
-//	}
-//	if (flags & O_WRONLY) {
-//		printf("File %s is for write only\n", argv[1]);
-//	}
-//	
-//	printf("O_ACCMODE: %d O_WRONLY: %d O_WRONLY: %d O_RDWR: %d\n", O_ACCMODE, O_RDONLY, O_WRONLY, O_RDWR);
-//	if (O_SYNC & O_SYNC) {
-//		printf("O_SYNC & O_SYNC True\n");
-//	}
-//	if (O_RDONLY & O_RDONLY) {
-//		printf("O_RDONLY & O_RDONLY True\n");
-//	}
-//	if (O_WRONLY & O_WRONLY) {
-//		printf("O_WRONLY & O_WRONLY True\n");
-//	}
-//	if (O_RDWR & O_RDWR) {
-//		printf("O_RDWR & O_RDWR True\n");
-//	}
-//	if (O_RDWR & O_RDONLY) {
-//		printf("O_RDWR & O_RDONLY True\n");
-//	}
-//	if (O_RDWR & O_WRONLY) {
-//		printf("O_RDWR & O_WRONLY True\n");
-//	}
-	
+	//	int fd = open(argv[1], O_SYNC | O_WRONLY);
+	//	if (fd == -1) {
+	//		errExit("open %s", argv[1]);
+	//	}
+	//	int flags = fcntl(fd, F_GETFL);
+	//	if (flags & O_SYNC) {
+	//		printf("File %s is for synchronized\n", argv[1]);
+	//	}
+	//	if (flags & O_RDONLY) {
+	//		printf("File %s is for read only\n", argv[1]);
+	//	}
+	//	if (flags & O_WRONLY) {
+	//		printf("File %s is for write only\n", argv[1]);
+	//	}
+	//	
+	//	printf("O_ACCMODE: %d O_WRONLY: %d O_WRONLY: %d O_RDWR: %d\n", O_ACCMODE, O_RDONLY, O_WRONLY, O_RDWR);
+	//	if (O_SYNC & O_SYNC) {
+	//		printf("O_SYNC & O_SYNC True\n");
+	//	}
+	//	if (O_RDONLY & O_RDONLY) {
+	//		printf("O_RDONLY & O_RDONLY True\n");
+	//	}
+	//	if (O_WRONLY & O_WRONLY) {
+	//		printf("O_WRONLY & O_WRONLY True\n");
+	//	}
+	//	if (O_RDWR & O_RDWR) {
+	//		printf("O_RDWR & O_RDWR True\n");
+	//	}
+	//	if (O_RDWR & O_RDONLY) {
+	//		printf("O_RDWR & O_RDONLY True\n");
+	//	}
+	//	if (O_RDWR & O_WRONLY) {
+	//		printf("O_RDWR & O_WRONLY True\n");
+	//	}
+
 	/**
 	 * Duplicate File Descripttors
-     * @param argc
-     * @param argv
-     * @return 
-     */
+	 * @param argc
+	 * @param argv
+	 * @return 
+	 */
+
+	char file_path[200];
+	strcpy(file_path, "../bin/dup_fd_test.txt");
+	int fd1 = open(file_path, O_RDWR);
+	if (fd1 < 0) {
+		printf("Error open file %s\n", strerror(errno));
+		return -1;
+	}
+	//dup
+	//	int fd2 = dup(fd1);
+
+	//dup2
+	//return fd of duplicate fd on success.
+	//close(3) if any already opened with that fd
+	//	int fd2 = dup2(fd1, 4);
+
+	//fcntl
+	//makes a duplicate of old fd by using the lowest fd greater than or equal to startfd
+	//return code on error is differ from dup2 and dup
+	//	int fd2 = fcntl(fd1, F_DUPFD, fd1);
+
+	//dup3
+	//makes a duplicate of old fd, same as dup2 but support O_CLOEXEC flag
+	//fd1 and fd2 share the same file offset and status flag	
+	
+	int fd2 = dup3(fd1, 4, O_CLOEXEC);
+	if (fd2 < 0) {
+		printf("Error duplicate fd %s\n", strerror(errno));
+		return -1;
+	}
+	char buff[200];
+	strcpy(buff, "cccc");
+	write(fd1, &buff, strlen(buff));
+	strcpy(buff, "dddd");
+	write(fd2, &buff, strlen(buff));
+	printf("First fd is: %d; second fd is: %d\n", fd1, fd2);
+	close(fd1);
+	close(fd2);
 	return 0;
 }
 

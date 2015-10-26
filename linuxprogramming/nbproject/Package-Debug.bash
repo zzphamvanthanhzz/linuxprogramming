@@ -13,7 +13,7 @@ CND_BUILDDIR=build
 CND_DLIB_EXT=so
 NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=./bin/GetOpenFileFlag
+OUTPUT_PATH=../bin/GetOpenFileFlag
 OUTPUT_BASENAME=GetOpenFileFlag
 PACKAGE_TOP_DIR=linuxprogramming/
 

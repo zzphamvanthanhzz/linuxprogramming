@@ -37,7 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/src/Linux.o \
 	${OBJECTDIR}/src/error_functions.o \
-	${OBJECTDIR}/src/get_num.o
+	${OBJECTDIR}/src/get_num.o \
+	${OBJECTDIR}/src/o_cloexec.o
 
 
 # C Compiler Flags
@@ -54,30 +55,37 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=../../../../Netbeans/svn_vng/xallocatorlib/lib/libxallocator.a
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ./bin/GetOpenFileFlag
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ../bin/GetOpenFileFlag
 
-./bin/GetOpenFileFlag: ${OBJECTFILES}
-	${MKDIR} -p ./bin
-	${LINK.cc} -o ./bin/GetOpenFileFlag ${OBJECTFILES} ${LDLIBSOPTIONS}
+../bin/GetOpenFileFlag: ../../../../Netbeans/svn_vng/xallocatorlib/lib/libxallocator.a
+
+../bin/GetOpenFileFlag: ${OBJECTFILES}
+	${MKDIR} -p ../bin
+	${LINK.cc} -o ../bin/GetOpenFileFlag ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/src/Linux.o: src/Linux.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -Iinc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Linux.o src/Linux.cpp
+	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Linux.o src/Linux.cpp
 
 ${OBJECTDIR}/src/error_functions.o: src/error_functions.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -Iinc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/error_functions.o src/error_functions.cpp
+	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/error_functions.o src/error_functions.cpp
 
 ${OBJECTDIR}/src/get_num.o: src/get_num.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -Iinc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/get_num.o src/get_num.cpp
+	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/get_num.o src/get_num.cpp
+
+${OBJECTDIR}/src/o_cloexec.o: src/o_cloexec.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/o_cloexec.o src/o_cloexec.cpp
 
 # Subprojects
 .build-subprojects:
@@ -85,7 +93,7 @@ ${OBJECTDIR}/src/get_num.o: src/get_num.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ./bin/GetOpenFileFlag
+	${RM} ../bin/GetOpenFileFlag
 
 # Subprojects
 .clean-subprojects:
