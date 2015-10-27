@@ -41,7 +41,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/o_cloexec.o \
 	${OBJECTDIR}/src/o_nonblock.o \
 	${OBJECTDIR}/src/pread_pwrite.o \
-	${OBJECTDIR}/src/readv_writev.o
+	${OBJECTDIR}/src/readv_writev.o \
+	${OBJECTDIR}/src/temporary_file.o
 
 
 # C Compiler Flags
@@ -104,6 +105,11 @@ ${OBJECTDIR}/src/readv_writev.o: src/readv_writev.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/readv_writev.o src/readv_writev.cpp
+
+${OBJECTDIR}/src/temporary_file.o: src/temporary_file.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/temporary_file.o src/temporary_file.cpp
 
 # Subprojects
 .build-subprojects:
