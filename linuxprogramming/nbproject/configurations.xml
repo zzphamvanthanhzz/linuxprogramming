@@ -12,6 +12,9 @@
       <itemPath>src/error_functions.cpp</itemPath>
       <itemPath>src/get_num.cpp</itemPath>
       <itemPath>src/o_cloexec.cpp</itemPath>
+      <itemPath>src/o_nonblock.cpp</itemPath>
+      <itemPath>src/pread_pwrite.cpp</itemPath>
+      <itemPath>src/readv_writev.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -67,6 +70,12 @@
       </item>
       <item path="src/o_cloexec.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/o_nonblock.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/pread_pwrite.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/readv_writev.cpp" ex="false" tool="1" flavor2="0">
+      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -112,6 +121,12 @@
       <item path="src/get_num.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/o_cloexec.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/o_nonblock.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/pread_pwrite.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/readv_writev.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

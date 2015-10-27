@@ -29,8 +29,9 @@
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" tmp</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}"  tmp</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"  ../bin/pread_pwrite.txt</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}"  tmp</runcommand>
+        <runcommand>"${OUTPUT_PATH}"  ../bin/pread_pwrite.txt</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>

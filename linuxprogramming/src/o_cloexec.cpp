@@ -17,7 +17,7 @@ using namespace std;
 /*
  * 
  */
-int main(int argc, char** argv) {
+int main_o_cloexec(int argc, char** argv) {
 	printf("1_PID: %d\n", getpid());
 	int fd;
 	if (argc > 1) {

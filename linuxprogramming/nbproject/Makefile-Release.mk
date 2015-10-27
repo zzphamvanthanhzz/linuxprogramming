@@ -38,7 +38,10 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/Linux.o \
 	${OBJECTDIR}/src/error_functions.o \
 	${OBJECTDIR}/src/get_num.o \
-	${OBJECTDIR}/src/o_cloexec.o
+	${OBJECTDIR}/src/o_cloexec.o \
+	${OBJECTDIR}/src/o_nonblock.o \
+	${OBJECTDIR}/src/pread_pwrite.o \
+	${OBJECTDIR}/src/readv_writev.o
 
 
 # C Compiler Flags
@@ -86,6 +89,21 @@ ${OBJECTDIR}/src/o_cloexec.o: src/o_cloexec.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/o_cloexec.o src/o_cloexec.cpp
+
+${OBJECTDIR}/src/o_nonblock.o: src/o_nonblock.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/o_nonblock.o src/o_nonblock.cpp
+
+${OBJECTDIR}/src/pread_pwrite.o: src/pread_pwrite.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/pread_pwrite.o src/pread_pwrite.cpp
+
+${OBJECTDIR}/src/readv_writev.o: src/readv_writev.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iinc -I../../../../Netbeans/svn_vng/xallocatorlib/inc -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/readv_writev.o src/readv_writev.cpp
 
 # Subprojects
 .build-subprojects:
