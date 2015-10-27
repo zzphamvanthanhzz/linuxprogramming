@@ -37,7 +37,29 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 	printf("3_PID: %d\n", getpid());
+	//With O_CLOEXEC => 
+	//Output:
+	//1_PID: 7994
+	//3_PID: 7994
+	//in parent: new fd = 3
+	//1_PID: 7994
+	//2_PID: 7994, Number of argc: 2
+	//argv[0] is: ./GetOpenFileFlag
+	//argv[1] is: 3
+	//child: fd = 3
 	fd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
+
+	//With O_CLOEXEC=>
+	//1_PID: 8381
+	//3_PID: 8381
+	//in parent: new fd = 3
+	//1_PID: 8381
+	//2_PID: 8381, Number of argc: 2
+	//argv[0] is: ./GetOpenFileFlag
+	//argv[1] is: 3
+	//child: fd = 3
+	//file descriptor valid in child	// fd 3 is not closed and visible in child process
+//	fd = open("/proc/self/exe", O_RDONLY);
 	printf("in parent: new fd = %d\n", fd);
 	char buf[20];
 	snprintf(buf, sizeof (buf), "%d", fd);
