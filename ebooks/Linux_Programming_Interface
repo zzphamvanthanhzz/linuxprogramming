@@ -1,0 +1,777 @@
+Chap 2_
+2.1:CORE:
+=========
+*Tasks perform by the kernels:
+-Process scheduling: preemtive multitasking
++multitasking:
++preemtive:kernel process scheduler decides which process receives use of CPU and how long.
+
+-Memory management: Linux has Virtual Memory Management;
++Each process is isolated from one another and from the kernel
+->one process cannt read/modify memory of any other process or the kernel.
++Only part of a process needs to be kept in memory.
+
+-Provision of a file system: kernels provide a FS on disk, allowing files to be created, modified, ...
+
+-Creation and termination of processes: load new program into memory, provides it with the resources (CPU, memory, access to files) needed to run.
+On process termination, kernel makes sure resources used by process are freed.
+
+-Access to devices:
+
+-Networking:kernel receives and transmits network messages(packets) on behalf of user process including routing packets to target system.
+
+-Provision of a system call API: 
+
+-Virtual private computer:user can log on to the system and operate largely independently of other users.
+
+*Kernel mode (supervisor mode) and user mode:
+
+*Process vs kernel views of the system:
+-Process doesn't know:
++Where it is located on RAM
++Where on the disk drive the files it accesses, it refers to the file by name.
++Can't directly communicate with other processes.
++Can't itself create a new process or terminate.
++Can't communicate with input and output.
+
+-Kernel:
++facilitates the running of all processes on the system.
++decides which next process will obtains CPU, when and how long.
++maintains data structures containing information about running processes + update theses structures on process creation, change stat and terminate.
++maintains data structures that map the virtual memory of each process into the physical memory of the computer and the swap areas on the disk.
++provide mechanism for communication between processes.
++perform directly communication with input and output.
+
+
+2.2_SHELL:
+==========
+*Also known as: command interpreter: reads command typed by a user and execute appropriate program in response to command.
+*"login shell": the process that is created to run a shell whne the user first log in.
+
+2.3_USER and GROUP:
+===================
+*Users: has a unique login name and a corresponding  user id (UID) (/et/passwd)
+-Group ID: the numeric group id of the first groups user is a member.
+-Home directory: initial directory into which user is placed after logging in.
+-Login shell: program used to interpret user's command.
+
+*Groups: (/etc/group)
+-Group name:
+-Group ID: 
+-User list:
+
+*Superuser: (root)
+
+2.4_Single Directory Hierarchy, Link, Directories and Files:
+===========================================================
+*Maintains a single directory hierarchy to organize all files in the system.
+*Base is : root directory (/).
+*File types: 
+*Directory and link:
+*File name: may contains: [-_.0-9a-zA-Z]
+
+2.5_File I/O models:
+====================
+*universality of I/O: means that the same system calls ****(open(), read(), write(), close())**** are used to perform on all types of files, include devices.
+(The kernel then translates these requests into appropriate file system or device-driver operation s that perform on target file or device)
+
+*File descriptor: a non-negative integer, a fd is obtains by calls to system call: open()
+
+*A process inherits 3 open files descriptor when it is started by the shell:
+-0: standard input.
+-1: standard output.
+-2: standard error.
+->in shell, it is usually the terminal.
+->in stdio, they are: stdin, stdout, stderr
+
+2.6_Program:
+============
+
+2.7_Processes:
+=============
+*Process Layout:
+-Text:instructions of the program
+-Data:static variables used by program
+-Stack:pieces of mem that grows and shrinks as functions are called and return.
+This is used to allocate storage of local variables and functions call linkage information.
+-Heap:erea from which program can dynamically allocate memory.
+
+*Process creation and program execution:
+========================================
+-****fork()**** system call create new process from current process. Kernel create child process by duplicating parent process.
+The child inherits copies of parent's data, stack, heap. (the Text segment is "read-only" and shared between 2 processes).
+
+-The child process can go on to execute the code like parent or to use ****"execve()"**** system call to load and execute an entirely new program.
+An "execve()" call destroys existing text, data, stack, heap segments and replace with new segments based on the code of new program.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://www.badprog.com/unix-gnu-linux-system-calls-using-execve
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*Process id and parent process id:
+*Process termination and termination status:
+-A termination status of 0: success
+-A termination status of non-zero: error.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-To print out last exited process: echo $?
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+*Process users and group identifiers:
+Each process has a number of associated user ids and group id:
+-Real user id and real group id: identify the user and group to which the process belongs. New process inherits these from
+its parents.
+-Effective user id and Effective group id: determine the permissions that the process has when accessing protected resources such as files and interprocesses objects.
+-Supplymentary group ID: 
+
+*Previledge processes:
+-Has effective uid equals 0.
+
+*The "init process": (parent of all process)
+====================
+-All processes in the systems are created by fork() command by init process or by its descendant.
+-UID is 1
+-cannot be killed, even root. Only terminated when system shut down.
+
+*Daemon process: (syslogd, httpd)
+===============
+-It is long-lived, often start at system boot, and terminated on system termination.
+-Runs in backgrounds.
+
+*Environment list: set of "environment variables" that are maintained within user-space memory of the process.
+Environment variables can be created by "export" command in bash shell or "setenv" in C shell.
+
+*Resource Limit:
+-****setrlimit()**** system call: a process can establish upper limits on its consumsion of various resources. Each resource limit has two associated values: 
++a "soft limit":limits the amount of the resource that the process may consume. 
++a "hard limit":the ceiling of soft limit.
+-when a new process is created with fork(), it inherits copies of its parents resource limit setting.
+-use ****ulimit**** to limit resource of the shell.These limits are inherited by the child process that the shell creates to execute command.
+
+2.8_Memory Mapping: 
+==================
+****mmap()**** system call: creates a new memory mapping in the calling process's virtual address space.
+*Mapping falls into two categories:
+-A file mapping: maps a region of a file into calling process's virtual memory. Once mapped, the file's contents can be accessed by operations on the bytes on the
+corresponding memory regions.
+-An anonymous mapping: not have a corresponding file. Instead, the pages of the mapping are initialized to 0.
+
+-Child process inherites mapping from its parents. 
+-When two or more processes share the same pages, each process may see the changes made by other processes to the contents of the pages, if the mapping is "shared", else
+modifications to the contents of the mapping are not visible to other processes and are not carried through the underlying file.
+
+-Memory mapping purpose:
++initialization of a process's text segments.
++allocation of new memory.
++file I/O(memory mapped I/O)
++interprocess communication
+
+2.9_Static and Shared Libraries:
+===============================
+*An object library: a file containing object code for a set of functions that may be called from application programs.
+*Static library:
+-To use functions from a "static library", specify that library in the link command used to build a program.
+-After resolving various functions references from the main program to the modules in the static library, the linker extracts
+the copies of the required object modules from the library and copies theses into resulting executable file.
+(****STATICALLY LINKED****)
+-DISADVANGES:
++duplications of object code in different executable files -> waste disk space.
++if a library requires modifications, then after recompiling that function and adding it to the static library, all applications 
+that need to use the updated function must be relinked against the library.
+
+
+*Shared library:
+-Instead of copying object modules into executable file, the linker just "writes a record" into executable to indicate that the shared library 
+is used by this executable.
+-When executable is loaded into memory at run time, "dynamic linker" ensures that the shared library are found and loaded into memory, and perform 
+linking to ensure function references.
+-At run time, only a single copy of the code of the shared library needs to be resident in memory; all running programs can use this copy.
+-No need to rebuild programs if shared library is recompiled/rebuild.
+
+2.10_Interprocess communication and synchronization:
+====================================================
+IPC (Interprocess communication) includes:
+*shared memory
+*sockets
+*signals:to indicate that events has happened
+*pipe or FIFOS
+*file lockings.
+*messages queue: used to exchange messages between processes.
+*semaphores: used to synchronized the actions of processes.
+
+2.11_Signals:
+=============
+*software interrupts
+*signals are sent by kernel, other process or process itself.
+*Each signal is identified by a different integer, and a name: SIGxxxx
+ex: SIGKILL, SIGABRT...
+*In the interval between the  time signal is generated and is delivered, it is pending.
+Normally, a pending signal is delivered as soon as the receiving process is next scheduled to run or immediately if process is 
+running.
+*Can add signals to process's "signal mask". If a signal is generated while it is in "signal mask", it will remain pending ultil 
+it is later unblock.
+
+
+2.12_Threads:
+=============
+*Each thread is executing in the same program code, data segment and heap segment. Each threads has its own local variables and function call linkages info.
+*Threads communicate via global variables.
+*Threads API provides "conditions" and "mutexes"
+
+2.13_Process Groups and Shell job controls:
+===========================================
+*Each program executed by the shell is started in new process.
+Ex: ls -l | sort -k5n | head -n2 
+=> creates 3 processes.
+
+*job-control:
+==============
+simultanously execute and manipulate multiple commands or pipeline.
+In job-control shell, all processes in pipelines are placed in a process group or job.
+Each process in the group has the same "process group id", which is also the id of one of the process in group.
+
+2.14_Sessions, controlling terminals and controlling processes:
+*Sessions: collection of process groups (jobs), all process in the same sessions has the same session id. The id of session leader - the process that creates the session
+is the id of sessions.
+
+*session usually associated with a "controlling terminal". 
+Ex: open a terminal and run programs in foreground, backgrounds ...
+=>current terminal: controlling terminals
+=>many jobs (process groups)
+=>session leader is the current terminal.
+=>At any time, one process group (job) is in the foreground, which can receives input and send output to the terminal. Many backgrounds jobs.
+
+
+*******************************************************************************************
+2.15_Pseudoterminals:
+=====================
+*Is a pair of connected virtual devices.(master and slave)
+*Data can be transferred between 2 devices.(telnet and ssh use it)
+*******************************************************************************************
+
+2.16_Date and time:
+*Real time:measured either from some standard point, or specific point.
+*Process time:total amount of CPU time that process used since starting, include: system CPU time:in kernel mode and user CPU time: in user mode.
+
+
+
+
+
+Chap3_:
+3.1_System call:
+================
+*General points:
+-a system call change processor mode from: user mode to kernel mode.
+-set of system call is fixed. Each system call is identified by a unique number.
+-each system call can have multiple arguments.
+***********************************************************************************************************************************
+**On Linux, system call service routine usually return a nonnegative value to indicate success, else a negative number is returned.
+**Some system call may return -1 on successfull: getpriority() return -1 on successful.
+***********************************************************************************************************************************
+
+*Figure 3-1: /90 demonstrate the routine of a system call.
+
+3.2_Library functions:
+=====================
+fopen() use ****open()**** system call
+printf() use ****write()**** system call
+malloc() and free() use ****brk()**** system call
+
+3.3_The standard C library: (glibc library)
+===========================================
+To determine the version of glibc library:
+**************************************************
+*****#include <gnu/libc-version.h>
+*****printf("%s\n", gnu_get_libc_version());
+**************************************************
+
+3.4_Handling errors from system calls and library functions:
+===========================================================
+
+*Handling system call error:
+============================
+#include <errno.h>
+if any error happened, the global variable errno will be set.
+int err = read(fd, (void*) buffer, size);
+if (err == -1) {
+	if (errno == EINTR) {
+		printf("Interupted system call\n");
+	}
+}
+
+****************************************************************************
+****Successful system calls and library functions never resets errno to 0
+****So always check if the error happens first, then check what error
+****************************************************************************
+
+****************************************************************************
+**Use perror(const char* err); //print error err passed as its argument.
+**Use strerror(int errornum); //return error string corresponding to errornum.
+****************************************************************************
+
+*Handling errors from library functions:
+========================================
+**Check manual to get the return values on error
+**Not all functions set global "errno" on failure, so don''t use "perror" or "strerror" to diagnose the error.
+
+3.5_Notes:
+=========
+*exit() vs _exit():
+-_exit(): no flush output
+http://man7.org/linux/man-pages/man2/exit.2.html
+-exit(): flush output
+http://man7.org/linux/man-pages/man2/exit.2.html
+-both no return
+
+*char *getenv(const char *name);
+-searches the environment list to find the environment variable name, and returns a pointer to the corresponding value string.
+-returns a pointer to the value in the environment, or NULL if there is no match.
+
+*int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+-write at most size bytes (including the terminating null byte ('\0')) to str. If the output was truncated due to this limit,
+then the return value is the number of characters (excluding the terminating null byte) which would have been written to the final string
+if enough space had been available. Thus, a return value of size or more means that the output was truncated.
+-do not write more than size bytes (including the terminating null byte ('\0'))
+If an output error is encountered, a negative value is returned.
+
+*int fflush(FILE *stream);
+-For output stream: forces a write of all user-space buffered data
+For input stream: discards any buffered data that has been fetched from the underlying file,but has not been consumed by the application
+-return: Upon successful completion 0 is returned.  Otherwise, EOF is returned and errno is set to indicate the error.
+
+*void va_start(va_list ap, last);
+-stepping through a list of arguments whose number and types are not known to the called function.
+
+
+=====================================================================================================================================================================
+Chap4_: I/O
+
+4.1_Overview:
+*Standard file descriptor:
+fd:description:POSIX:stdio stream
+0:standard input:STDIN_FILENO:stdin
+1:standard output:STDOUT_FILENO:stdout
+2:standard error:STDERR_FILENO:stderr
+
+*If use ****freopen()**** to reopen stdout, no longer safe to assume that the file descriptor of stdout is 1
+
+*4 system calls used to perform I/O operations:
+
+-int open(const char *pathname, int flags, mode_t mode): 
++The file descriptor returned by a successful call will be the lowest-numbered file descriptor not currently open for the process.
++flags: O_RDONLY, O_WRONLY, or O_RDWR
++mode: mode specifies the mode to use in case a new file is created. This argument must be supplied when O_CREATE or O_TMPFILE is specified in the flags; if 
+neither O_CREATE or O_TMPFILE is specified, mode is ignored.
++return file description of file opened.
+
+-ssize_t read(int fd, void *buf, size_t count):
++attempts to read upto count bytes from fd into buffer "STARTING" by buf.
++count is greater than SSIZE_MAX, the result is unspecified.
++return:the number of bytes read is returned(zero indicates end of file), and FILE POSITION IS ACVANCED BY THIS NUMBER.
+If number is smaller than the requested number, it's not an error.
+On error, -1 is returned and errno is set appropriately.
+
+-ssize_t write(int fd, const void *buf, size_t count);
++write up to count bytes from started at buf to the file referred to by the fd. 
++The number of bytes written may be less than count if no more space on physical disk, ...
++return:On success, the number of bytes written is returned (zero indicates nothing was written). It's not an error if the number is smaller
+than the requested number.
+On error -1 is returned and errno is set appropriately.
+
+-int fclose(FILE *stream);
++The fclose() function flushes the stream pointed to by stream and closes the underlying file descriptor.
++on success, 0 is returned, else EOF is returned and errno is set appropriately.
+
+4.2_Universality of I/O:
+========================
+*Means that the same four system call: ****open(), close(), read(), write()**** are used to perform I/O on all types of files,
+includes terminal.
+
+*When access to specific features of a file system or device, use ****ioctc()****, which provide features fall outside universal I/O.
+
+4.3_Opening a file:
+===================
+*File access mode: O_WRONLY(0), O_WRONLY(1), O_RDWR(2)
+int open(const char * pathname , int flags , ... /* mode_t mode */);
+/*return file descriptor on success, else 01*/
+
+*File descriptor returned by ****open()****: it is guaranteed to use the lowest-numbered unused file descriptor for the process.
+
+4.3.1_The open() flag argument:
+===============================
+*File access mode:
+O_RDONLY:Open file for read only
+O_WRONLY:Open file for write only.
+O_RDWR:Open for both read and write.
+
+*File creation flags:
+O_CLOEXEC:
+O_CREATE:create file if it doesn't already exist
+O_DIRECT:file I/O bypasses buffer cache
+O_DIRECTORY:Fail if file is not a directory
+O_EXCL:With O_CREATE, return error if file already exist. (Avoid RACE CONDITIONS)
+O_LARGEFILE:used on 32-bit systems to open large file.
+O_NOATIME:don't update file last access time on read();
+O_NOCTTY:
+O_NOFOLLOW:don''t dereference symbolic links.
+O_TRUNC:truncate existing file to zero bytes.
+
+*Open file status flags:
+O_APPEND:writes are always appended to end of file. (Avoid RACE CONDITIONS)
+O_ASYNC:generate a signal when I/O is possible.
+O_NONBLOCK:open file nonblocking mode.
+O_SYNC:Make files write synchronous.
+
+4.3.2_Errors from open():
+=========================
+*********************************************************************************************************************
+==>If open file for reading information, not specify: O_CREATE, should return error on open.
+*********************************************************************************************************************
+
+4.3.3_The create() system call:
+===============================
+int creat(const char * pathname , mode_t mode );
+/*return the file descriptor, or -1 on error*/
+-Create and open a new file.
+-If file already exists, opens the file and truncates it to zero length.
+-Equivalent to: open(pathname, O_WRONLY | O_CREAT | O_TRUNC, mode);
+
+
+4.4_Read from a file read():
+============================
+ssize_t read(int fd , void * buffer , size_t count );
+/*returns number of bytes read, 0 on EOF, or -1 on error*/
+-count: maximum number of bytes to read.
+-buffer: ****address of memory**** into which input data is replace, must be at least count bytes.
+-System call doesn''t allocate memory for buffer that are used to return information to the caller. Instead, we must pass
+pointer to a previously allocated buffer with correct size.
+*******************************************************************
+***read does not put '\0'-null terminated at the end of buffer.
+*******************************************************************
+	char buffer[MAX_READ];
+	int numRead = read(STDIN_FILENO, buffer, MAX_READ);
+	if (numRead == -1)
+		errExit("read standard input");
+	buffer[numRead] = '\0';
+	printf("The input is: %s\n", buffer);
+
+4.5_Write to a file: write():
+=============================
+ssize_t write(int fd, void * buffer , size_t count );
+/*return number of bytes written, -1 on error*/
+-When performing I/O on a disk file, a succesful write doesn''t guarantee that the data has been transferred to the disk. The
+kernel buffered it.
+
+4.6_Closing a file: close():
+============================
+int close(int fd );
+/*return 0 on success and -1 on error*/
+
+4.7_Changing file offset: lseek():
+==================================
+off_t lseek(int fd , off_t offset , int whence );
+
+*Each open file, kernel records a file offset(read/write offset or pointer).The pointer is a relative position to the start 
+of file.
+
+*The pointer point to the start of file when it is opened and is automatically adjusted by each subsequence call to read() and
+write().
+
+*whence argument indicates the base point from which offset is to interpreted:
+-SEEK_SET:from begining file.
+-SEEK_CUR:from current file offset.
+-SEEK_END:from end of file.
+=>For whence is SEEK_END or SEEK_CUR offset can be negative, but with SEEK_SET, offset must be nonnegative.
+
+*******************************************************************************************************************************************************************************
+****File hole****
+****If lseek past the end of a file, and then performs I/O, a call to read() will return 0 - EOF;
+****A call to write() will make a "file hole". "file hole" doesn't take up any disk space. The file system doesn't allocate any disk space for a file hole until data is 
+****written into it. Written into the middle of a hole will decrease the amount of free disk space as the kernel allocates blocks to fill the hole, even though file's size
+****doesn't change.
+*******************************************************************************************************************************************************************************
+
+4.8_Operations Outside the Univeral I/O Model: iotcl():
+=======================================================
+int ioctl(int fd , int request , ... /* argp */);
+/*Value returned on success depends on request, or –1 on error*/
+
+
+
+Chap5_:File I/O: FURTHER DETAILS.
+5.1_Atomicity and Race conditions:
+==================================
+*All System Call are executed atomically.
+*Race condition is a situation where the result produced by two processes(or threads) operating on shared resources depends
+in an unexpected way on the relative order in which the processes gain access to the CPU(s).
+
+*Creating a file exclusively:
+=============================
+****getpid()**** return pid of process running.
+****sleep()**** library function suspends the execution of a process for a specified number of seconds.
+Code example page 134:
+=======>Using a single open() call that specifies the O_CREATE and O_EXCL flags guarantee that the check and the creation step 
+are carried out as a single atomic operation.
+When create file if not exist, use this:
+		fd = open(argv[1], O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR); //if file exists, fd = -1, and error set to errno is:
+																			//File exists
+		if (fd == -1){
+			printf("%s\n", strerror(errno));
+			errExit("open");
+		}
+
+*Appending data to a file:
+==========================
+if  ( lseek(fd,   0,   SE EK_END)  ==  - 1)
+        errExit( " lseek" ) ;
+if  (write(fd,   buf,   len)  ! =  len)
+        fatal( " Partial/failed  write");
+
+=>If the first process executing the code is interrupted between lseek and write calls by a second process doing the same thing,
+then both processes will set their file offset to the same location before writing, and when the first process is rescheduled,
+it will overwrite the data already written by the second process.
+-----------> O_APPEND with open file help avoid that (always write append to the end of file);
+
+
+5.2_File control operation: fcntl():
+====================================
+
+5.3_Open file status flag:
+==========================
+*Retrieve or modify the access mode and open file status flags of an open file (by open() system call).
+int fd, accessmod;
+
+*To get flags:
+==============
+flags = fcntl(fd, F_GETFL);
+if(flags == -1 )
+	errExit("fcntl");
+//Check if open file is synchronous
+if(flags & O_SYNC)
+	printf("writes are synchronous");
+
+*To get access mode (read, write, read and write):
+==================================================
+
+accessMode  =  flags  &  O_ACCMODE; //(3);=>Other flags will go false after & with O_ACCMODE
+if  ( accessMode  ==  O_WRONLY  ||   accessMode  ==  O_RDWR) //to eliminate other bits, only keep 2 bits
+															//Ex: (O_SYNC|O_WRONLY)&O_ACCMODE
+	printf( " file  is  writable\n " ) ;
+**********************************************************
+*tính phân phối của phép & với phép | (A|B)&C=(A&C)|(A&B)*
+**********************************************************
+-->Vi: 
+	Write khi : O_WRONLY or O_RDWR
+	Read khi : O_RDONLY or O_RDWR 
+va O_RDONLY&O_RDONLY is FALSE (0&0)
+Example code: 
+------------------------------------------------------------------------------------------------------------
+	printf("O_WRONLY: %d O_WRONLY: %d O_RDWR: %d\n", O_RDONLY, O_WRONLY, O_RDWR);
+	if (O_SYNC & O_SYNC) {
+		printf("O_SYNC & O_SYNC True\n");
+	}
+	if (O_RDONLY & O_RDONLY) { //0&0
+		printf("O_RDONLY & O_RDONLY True\n");
+	}
+	if (O_WRONLY & O_WRONLY) {
+		printf("O_WRONLY & O_WRONLY True\n");
+	}
+	if (O_RDWR & O_RDWR) {
+		printf("O_RDWR & O_RDWR True\n");
+	}
+	if (O_RDWR & O_RDONLY) {
+		printf("O_RDWR & O_RDONLY True\n");
+	}
+	if (O_RDWR & O_WRONLY) {
+		printf("O_RDWR & O_WRONLY True\n");
+	}
+Output:
+	O_WRONLY: 0 O_WRONLY: 1 O_RDWR: 2
+	O_SYNC & O_SYNC True
+	O_WRONLY & O_WRONLY True
+	O_RDWR & O_RDWR True
+-------------------------------------------------------------------------------------------------------------
+F_SETFL
+Set the file status flags for the specified file descriptor. The argument is the new set of flags, as a variable of type int. 
+These flags are as specified for the oflag argument to open(), along with the additional values specified later. Bits 
+corresponding to the file access mode and any other oflag bits not listed here are ignored. If any bits not defined here 
+or in open() are set, behavior is undefined. The return value is 0 on success, or -1 on error. The following file status 
+flags can be changed with F_SETFL:
+
+O_APPEND 
+Valid only for file descriptors that refer to regular files. The file pointer is moved to the end of the file before each 
+write.
+
+O_ASYNC 
+Valid only for file descriptors that refer to sockets and communications ports. If enabled for a file descriptor, and an
+ owning process/process group has been specified with the F_SETOWN command to fcntl(), then a SIGIO signal is sent to the 
+ owning process/process group when input is available on the file descriptor.
+
+O_BINARY 
+Sets the file descriptor to binary mode. See PORTING ISSUES for more information.
+
+O_LARGEFILE 
+Sets the file descriptor to indicate a large-file aware application.
+
+O_NDELAY 
+Sets the file descriptor to no-delay mode.
+
+O_NONBLOCK 
+Sets the file descriptor to non-blocking mode. The distinction between non-blocking mode and no-delay mode is relevant only 
+for a few types of special files such as pipes and FIFOs. Refer to read() and write() for more information.
+
+O_SYNC 
+Sets the file descriptor to synchronous-write mode. Writes do not return until file buffers have been flushed to disk.
+
+O_TEXT 
+Sets the file descriptor to text mode. See PORTING ISSUES for more information.
+
+FAPPEND 
+A synonym for O_APPEND.
+
+FASYNC 
+A synonym for O_ASYNC.
+
+FNDELAY 
+A synonym for O_NDELAY.
+
+5.4_Relationship Between File descriptor and open files:
+========================================================
+*There may be multiple descriptors referring to the same open files. These file descriptors may be open in the
+same process or in different processes.
+
+*Kernel explained:
+-The per-process file descriptor table;
+-The system-wide table of open file descriptors
+-The file-system i-node table
+
+*For each process, the kernel maintains a table of open file descriptors.(in /proc/pid/fd folder). Each entry in
+this table records information about a single file descriptor:
+-set of flags controlling the operation of the file descriptor.
+-a reference to the open file descriptor.
+
+*The kernel maintains a system-wide table of all open file descriptors. An open file descriptor stores all 
+information relating to  an open file:
+-The current file offset.(as updated by read(), write() or explicitly modified by lseek)
+-Status flags specified when opening the file (ex: flags arguments to open())
+-File access mode (read only, write only, ...)
+-settings relating to signal-driven I/O.
+-reference to i-node object for this file.
+
+*Table of i-nodes for all files residing in the file system:
+-File type (regular file, socket ...) + permission  
+-A pointer to a list of locks held on this file.
+-Various properties of this file, including size and timestamps relating to different types of file operations.
+
+********************************************************************************************
+(fd (1))-n:1-(inode ptr(2))-n:1-(i-node(3))
+FIGURE 5.2/140
+********************************************************************************************
+
+5.5_Duplicating File Descriptors:
+================================
+stdin: fd: 0
+stdout: fd: 1
+stderr: fd: 2
+
+2>&1 means: redirect standard error (fd 2) to standard out (fd 1)
+=>$./script.sh > result.log 2>&1 : means both output and error will be printed in result.log
+
+5.5.1_2 file descriptors of the same process refer to the same open file description:
+=====================================================================================
+dup(), dup2(), fcntl();
+
+
+5.5.2_2 file descriptors of 2 different processes refer to the same open file description:
+=====================================================================================
+fork();
+
+5.5.3_2 file descriptors of 2 different processes refer to 2 different file descriptions refer to the same i-node table entry:
+==============================================================================================================================
+2 processes open the same file();
+
+
+Duplicate file descriptors share the same file offset and status flags in their shared open file description.
+However, the new file descriptor has its own set of descriptor flags, and its close-on-exec flag(FD_CLOEXEC) is always turnoff.
+
+O_CLOEXEC
+Close open fd before any exec command.(means child processes of exec cannot see any fd open with O_CLOEXEC).
+
+5.6_File I/O at a Specified Offset: pread() and pwrite():
+=========================================================
+ ssize_t pread(int fd, void *buf, size_t count, off_t offset);
+ //return number of bytes read, 0 on EOF, -1 on error
+ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
+ //return number of bytes written, or -1 on error
+ 
+ 
+ pread and pwrite can be written in using read, write and lseek.
+ 
+But if we use lseek plus read (or write instead), we could create a race condition in multithreads programming (open same fd) or multiprocesses (open same fd).
+
+5.7_Scatter-Gather I/O: readv() and writev():
+=============================================
+       ssize_t readv(int fd, const struct iovec *iov, int iovcnt);
+
+       ssize_t writev(int fd, const struct iovec *iov, int iovcnt);
+       
+       ssize_t preadv(int fd, const struct iovec *iov, int iovcnt, off_t offset);
+
+       ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);
+       
+       
+5.8_Truncating a file: truncate() and ftruncate():
+==================================================
+int truncate(const char* pathname, off_t length);
+int ftruncate(int fd, off_t length);
+
+return 0 on success and -1 on error
+
+If file longer than length, excess data is lost. If shorter than length, it is extended by padding with a sequence of null bytes or a hole.
+
+5.9_Non blocking I/O:
+====================
+Specifying O_NONBLOCK flag when opening a file:
++If file cannot open immediately, error is returned instead of blocking.
++After a successful open(), subsequent I/O operations are also nonblocking. If an I/O system call cannot complete immediately, either a partial data transfer is performed or the 
+system call fails with errno.
+
+***Non blocking I/O can be used with devices (terminals and pseudoterminals), pipes, FIFOs, sockets. O_NONBLOCK by open() or fcntl() F_SETFL operations(sockets, pipe)
+***Non blocking I/O is ignored for regular files, because kernel buffer cache ensures that I/O on regular files does not block.
+
+
+5.10_I/O on Large Files:
+=======================
+off_t is a signed long integer (limit to 2^31 -1 bytes) (2GB)
+
+
+5.11_The /dev/fd Directory: ( is a symbolic link to /proc/self/fd directory)
+==========================
+/dev/fd/0: stdin
+/dev/fd/1: stdout
+/dev/fd/2: stderr
+
+This directory is used mostly in shell:
+ls | diff /dev/fd/0 ./tmp
+
+=> /dev/fd/0 will contains result from ls
+=> then compare this result with ./tmp
+(tmp contain list file of current folder)
+
+
+5.12_Creating Temporary Files:
+=============================
+Create emporary files that are used only while the program is running, and these files should be removed when the program terminates.
++mkstemp(char* template): return fd on success, -1 on error
+template is path name, the las 6 characters must be XXXXXX. These 6 characters are replaced with a string that makes the file name unique. And this name is returned via
+the template argument.
++tmpfile(void):
+
+
+
+
+
+
+
+
+
+
+================================Chapter 6: PROCESSES=========================================

@@ -16,7 +16,7 @@ using namespace std;
 /*
  * 
  */
-int main(int argc, char** argv) {
+int main_temporaryfile(int argc, char** argv) {
 	int fd;
 	char file_path[] = "../bin/temporaryXXXXXX";
 	//The file is opened with the open(2) O_EXCL flag, 
